@@ -1,0 +1,27 @@
+{
+  "title": "Web Vitals",
+  "schemaVersion": 39,
+  "panels": [
+    {
+      "type": "timeseries",
+      "title": "LCP p75",
+      "gridPos": { "x": 0, "y": 0, "w": 12, "h": 8 },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "Prometheus" },
+          "expr": "histogram_quantile(0.75, sum by(le,route)(rate(web_vitals_lcp_seconds_bucket[5m])))"
+        }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "CLS avg",
+      "gridPos": { "x": 0, "y": 8, "w": 12, "h": 8 },
+      "targets": [
+        {
+          "expr": "avg by(route)(rate(web_vitals_cls_score_sum[5m]) / rate(web_vitals_cls_score_count[5m]))"
+        }
+      ]
+    }
+  ]
+}

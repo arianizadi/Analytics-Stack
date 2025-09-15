@@ -1,0 +1,28 @@
+{
+  "title": "Errors & Logs",
+  "schemaVersion": 39,
+  "panels": [
+    {
+      "type": "logs",
+      "title": "App Logs (Loki)",
+      "gridPos": { "x": 0, "y": 0, "w": 12, "h": 10 },
+      "targets": [
+        {
+          "datasource": { "type": "loki", "uid": "Loki" },
+          "expr": "{app=\\"nextjs\\"}"
+        }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "5xx rate",
+      "gridPos": { "x": 0, "y": 10, "w": 12, "h": 6 },
+      "targets": [
+        {
+          "datasource": { "type": "loki", "uid": "Loki" },
+          "expr": "sum(rate({app=\\"nginx\\"} |= \\" 5\\" [5m]))"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,28 @@
+{
+  "title": "Uptime",
+  "schemaVersion": 39,
+  "panels": [
+    {
+      "type": "stat",
+      "title": "Availability % (24h)",
+      "gridPos": { "x": 0, "y": 0, "w": 6, "h": 4 },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "Kuma-Prom" },
+          "expr": "avg( probe_success ) * 100"
+        }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "Response Time",
+      "gridPos": { "x": 0, "y": 4, "w": 12, "h": 8 },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "Kuma-Prom" },
+          "expr": "avg_over_time(probe_duration_seconds[5m])"
+        }
+      ]
+    }
+  ]
+}
