@@ -77,20 +77,25 @@ case $ACCESS_METHOD in
     3)
         USE_DOMAINS="n"
         USE_CLOUDFLARE_TUNNELS="y"
-        # Use localhost with service names for Cloudflare Tunnels
-        GRAFANA_DOMAIN="localhost:3000"
-        UMAMI_DOMAIN="localhost:8081"
-        UPTIME_KUMA_DOMAIN="localhost:3001"
+        # Get the server's internal IP address for Cloudflare Tunnels
+        echo "Detecting server internal IP address..."
+        INTERNAL_IP=$(hostname -I | awk '{print $1}' || ip route get 1 | awk '{print $7; exit}' || echo "localhost")
+        echo "Detected internal IP: $INTERNAL_IP"
+        
+        # Use internal IP with service names for Cloudflare Tunnels
+        GRAFANA_DOMAIN="${INTERNAL_IP}:3000"
+        UMAMI_DOMAIN="${INTERNAL_IP}:8081"
+        UPTIME_KUMA_DOMAIN="${INTERNAL_IP}:3001"
         
         echo "Using Cloudflare Tunnels configuration:"
-        echo "  Grafana: localhost:3000 (tunnel to grafana.yourdomain.com)"
-        echo "  Umami: localhost:8081 (tunnel to umami.yourdomain.com)"
-        echo "  Uptime Kuma: localhost:3001 (tunnel to uptime.yourdomain.com)"
+        echo "  Grafana: ${INTERNAL_IP}:3000 (tunnel to grafana.yourdomain.com)"
+        echo "  Umami: ${INTERNAL_IP}:8081 (tunnel to umami.yourdomain.com)"
+        echo "  Uptime Kuma: ${INTERNAL_IP}:3001 (tunnel to uptime.yourdomain.com)"
         echo ""
         echo "Note: You'll need to configure your Cloudflare Tunnel to route:"
-        echo "  grafana.yourdomain.com -> localhost:3000"
-        echo "  umami.yourdomain.com -> localhost:8081"
-        echo "  uptime.yourdomain.com -> localhost:3001"
+        echo "  grafana.yourdomain.com -> ${INTERNAL_IP}:3000"
+        echo "  umami.yourdomain.com -> ${INTERNAL_IP}:8081"
+        echo "  uptime.yourdomain.com -> ${INTERNAL_IP}:3001"
         ;;
     *)
         echo "Invalid option. Using IP addresses as fallback."
@@ -114,9 +119,9 @@ if [[ "$SETUP_OPENREPLAY" == "y" || "$SETUP_OPENREPLAY" == "Y" ]]; then
             echo "OpenReplay will be available at: http://$OPENREPLAY_DOMAIN"
             ;;
         3)
-            OPENREPLAY_DOMAIN="localhost:8082"
-            echo "OpenReplay will be available at: localhost:8082 (tunnel to openreplay.yourdomain.com)"
-            echo "Configure your Cloudflare Tunnel to route: openreplay.yourdomain.com -> localhost:8082"
+            OPENREPLAY_DOMAIN="${INTERNAL_IP}:8082"
+            echo "OpenReplay will be available at: ${INTERNAL_IP}:8082 (tunnel to openreplay.yourdomain.com)"
+            echo "Configure your Cloudflare Tunnel to route: openreplay.yourdomain.com -> ${INTERNAL_IP}:8082"
             ;;
         *)
             OPENREPLAY_DOMAIN="${SERVER_IP}:8082"
@@ -269,12 +274,9 @@ services:
 EOL
     
     if [[ "$SETUP_OPENREPLAY" == "y" || "$SETUP_OPENREPLAY" == "Y" ]]; then
-        cat >> docker-compose.override.yml << EOL
-  
-  openreplay-web:
-    ports:
-      - "8082:80"
-EOL
+        # Note: OpenReplay services are defined in separate docker-compose file
+        # Port mapping will be handled by the OpenReplay compose file
+        echo "OpenReplay will be started separately with its own compose file"
     fi
     
     if [[ "$USE_CLOUDFLARE_TUNNELS" == "y" ]]; then
@@ -302,19 +304,19 @@ echo "Your analytics stack is now running!"
 echo ""
 if [[ "$USE_CLOUDFLARE_TUNNELS" == "y" ]]; then
     echo "Services are running locally and ready for Cloudflare Tunnels:"
-    echo "  Grafana: localhost:3000"
-    echo "  Umami: localhost:8081"
-    echo "  Uptime Kuma: localhost:3001"
+    echo "  Grafana: ${INTERNAL_IP}:3000"
+    echo "  Umami: ${INTERNAL_IP}:8081"
+    echo "  Uptime Kuma: ${INTERNAL_IP}:3001"
     if [[ "$SETUP_OPENREPLAY" == "y" || "$SETUP_OPENREPLAY" == "Y" ]]; then
-        echo "  OpenReplay: localhost:8082"
+        echo "  OpenReplay: ${INTERNAL_IP}:8082"
     fi
     echo ""
     echo "Configure your Cloudflare Tunnel to route:"
-    echo "  grafana.yourdomain.com -> localhost:3000"
-    echo "  umami.yourdomain.com -> localhost:8081"
-    echo "  uptime.yourdomain.com -> localhost:3001"
+    echo "  grafana.yourdomain.com -> ${INTERNAL_IP}:3000"
+    echo "  umami.yourdomain.com -> ${INTERNAL_IP}:8081"
+    echo "  uptime.yourdomain.com -> ${INTERNAL_IP}:3001"
     if [[ "$SETUP_OPENREPLAY" == "y" || "$SETUP_OPENREPLAY" == "Y" ]]; then
-        echo "  openreplay.yourdomain.com -> localhost:8082"
+        echo "  openreplay.yourdomain.com -> ${INTERNAL_IP}:8082"
     fi
 elif [[ "$USE_DOMAINS" == "y" || "$USE_DOMAINS" == "Y" ]]; then
     echo "Access your services at:"
