@@ -9,6 +9,7 @@ contactPoints:
           url: ${SLACK_WEBHOOK_URL}
           title: "Grafana Alert"
           text: "{{ .CommonAnnotations.summary }}"
+          recipient: "#alerts"
 
 notificationPolicies:
   - orgId: 1
