@@ -111,17 +111,6 @@ services:
       - kuma-data:/app/data
     restart: unless-stopped
 
-  caddy:
-    image: caddy:2
-    container_name: caddy
-    ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - ./caddy/Caddyfile:/etc/caddy/Caddyfile
-      - caddy-data:/data
-      - caddy-config:/config
-    restart: unless-stopped
 
 volumes:
   pgdata:
@@ -129,5 +118,3 @@ volumes:
   grafana-data:
   loki-data:
   kuma-data:
-  caddy-data:
-  caddy-config:

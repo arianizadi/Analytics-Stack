@@ -97,7 +97,6 @@ CONTAINERS=(
     "cadvisor"
     "grafana"
     "uptime-kuma"
-    "caddy"
     "openreplay-web"
     "zookeeper"
     "kafka"
@@ -126,8 +125,6 @@ VOLUMES=(
     "analytics-stack_grafana-data"
     "analytics-stack_loki-data"
     "analytics-stack_kuma-data"
-    "analytics-stack_caddy-data"
-    "analytics-stack_caddy-config"
     "openreplay_or-pg"
     "openreplay_or-ch"
     "openreplay_or-minio"
@@ -136,8 +133,6 @@ VOLUMES=(
     "grafana-data"
     "loki-data"
     "kuma-data"
-    "caddy-data"
-    "caddy-config"
     "or-pg"
     "or-ch"
     "or-minio"
@@ -184,7 +179,6 @@ FILES_TO_REMOVE=(
     ".env"
     "openreplay/.env.openreplay"
     "docker-compose.override.yml"
-    "caddy/Caddyfile"
 )
 
 for file in "${FILES_TO_REMOVE[@]}"; do
@@ -217,7 +211,7 @@ docker builder prune -f 2>/dev/null || true
 print_status "Verifying cleanup..."
 
 # Check for remaining containers
-REMAINING_CONTAINERS=$(docker ps -a --format "table {{.Names}}" | grep -E "(pg-umami|umami|loki|promtail|prometheus|node-exporter|cadvisor|grafana|uptime-kuma|caddy|openreplay|zookeeper|kafka|redis|clickhouse|minio|ingester|api|web)" | wc -l)
+REMAINING_CONTAINERS=$(docker ps -a --format "table {{.Names}}" | grep -E "(pg-umami|umami|loki|promtail|prometheus|node-exporter|cadvisor|grafana|uptime-kuma|openreplay|zookeeper|kafka|redis|clickhouse|minio|ingester|api|web)" | wc -l)
 
 if [ "$REMAINING_CONTAINERS" -gt 0 ]; then
     print_warning "Some containers may still exist:"
